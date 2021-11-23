@@ -1,4 +1,4 @@
-package guru.sfg.beer.order.service.web.model;
+package com.comon.brewery.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -45,6 +45,8 @@ public class BeerDTO  implements Serializable{
         @Positive
         @NotNull
         private BigDecimal price;
+
+
     }
 
 

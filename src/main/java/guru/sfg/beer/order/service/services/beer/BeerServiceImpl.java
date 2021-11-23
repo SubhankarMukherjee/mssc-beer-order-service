@@ -1,8 +1,7 @@
 package guru.sfg.beer.order.service.services.beer;
 
-import guru.sfg.beer.order.service.web.model.BeerDTO;
+import com.comon.brewery.model.BeerDTO;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
