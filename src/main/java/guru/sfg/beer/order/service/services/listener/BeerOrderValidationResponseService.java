@@ -1,6 +1,5 @@
 package guru.sfg.beer.order.service.services.listener;
 
-import com.comon.brewery.model.event.ValidateOrderRequest;
 import com.comon.brewery.model.event.ValidateOrderResult;
 import guru.sfg.beer.order.service.config.JmsConfigConvert;
 import guru.sfg.beer.order.service.services.BeerOrderManager;
@@ -15,10 +14,12 @@ import java.util.UUID;
 public class BeerOrderValidationResponseService {
 
      private final BeerOrderManager beerOrderManager;
-    @JmsListener(destination = JmsConfigConvert.VALIDATE_ORDER_QUEUE)
+    @JmsListener(destination = JmsConfigConvert.VALIDATE_ORDER_RESPONSE_QUEUE)
     public void listen(ValidateOrderResult validateOrderResult)
     {
+        System.out.println("Validation Order Response Received from Receiver BEER-ORDER_SERVICE"+ validateOrderResult.toString());
         final UUID orderId = validateOrderResult.getOrderId();
         beerOrderManager.processValidationResult(orderId,validateOrderResult.isValid());
+
     }
 }

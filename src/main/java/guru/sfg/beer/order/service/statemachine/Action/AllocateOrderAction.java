@@ -37,9 +37,10 @@ public class AllocateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
         AllocateOrderRequest allocateOrderRequest = AllocateOrderRequest.builder()
                 .beerOrderDto(beerOrderDto)
                 .build();
-        jmsTemplate.convertAndSend(JmsConfigConvert.VALIDATE_ORDER_QUEUE, allocateOrderRequest);
+        jmsTemplate.convertAndSend(JmsConfigConvert.ALLOCATE_ORDER_QUEUE, allocateOrderRequest);
         log.error("Order Not Found. Id: " + beerOrderId);
 
         log.debug("Sent Allocation request to queue for order id " + beerOrderId);
+        System.out.println("Allocation oder msg sent >>>>>>>>"+ allocateOrderRequest.toString());
     }
 }

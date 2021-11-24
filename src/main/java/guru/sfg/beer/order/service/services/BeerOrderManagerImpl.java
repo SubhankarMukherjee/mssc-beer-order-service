@@ -39,20 +39,32 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
 
         //Save it to repo
         BeerOrder savedBeerOrder = beerOrderRepository.save(beerOrder);
+        System.out.println("New Beer Saved****"+ savedBeerOrder.getId().toString());
         // create msg with event and send the event to state machine which is dehidrate from database
         sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATE_ORDER);
         return savedBeerOrder;
     }
 
+    @Transactional
     @Override
     public void processValidationResult(UUID orderId, boolean valid) {
-        BeerOrder beerOrder = beerOrderRepository.findOneById(orderId);
+        try {
+            Thread.sleep(2000);
+        }
+        catch (Exception e)
+        {
+
+        }
+        BeerOrder beerOrder = beerOrderRepository.findById(orderId).get();
+        System.out.println("*****Check*****BeerOrder:"+ beerOrder.getId().toString());
         if (valid) {
             sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATION_PASSED);
 
             // Need to take a fresh object becuae once above event was sent interceptor will update the status and we will be runing with stale object
 
-            BeerOrder validatedOrder = beerOrderRepository.findOneById(orderId);
+            BeerOrder validatedOrder = beerOrderRepository.findById(orderId).get();
+
+            System.out.println("************ Check 2"+ validatedOrder.getId().toString());
             sendBeerOrderEvent(validatedOrder, BeerOrderEventEnum.ALLOCATE_ORDER);
         } else sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATION_FAILED);
     }

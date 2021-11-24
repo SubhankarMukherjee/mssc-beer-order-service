@@ -16,6 +16,8 @@ public class BeerOrderAllocationResultListener {
 
     @JmsListener(destination = JmsConfigConvert.ALLOCATE_ORDER_RESPONSE_QUEUE)
     public void listen(AllocateOrderResult result){
+        System.out.println("Allocation Order Response Received from Receiver @BEER-ORDER_SERVICE"+ result.toString());
+
         if(!result.getAllocationError() && !result.getPendingInventory()){
             //allocated normally
             beerOrderManager.beerOrderAllocationPassed(result.getBeerOrderDto());
@@ -26,5 +28,6 @@ public class BeerOrderAllocationResultListener {
             //allocation error
             beerOrderManager.beerOrderAllocationFailed(result.getBeerOrderDto());
         }
+
     }
 }
