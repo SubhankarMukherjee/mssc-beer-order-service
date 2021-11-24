@@ -48,13 +48,14 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
     @Transactional
     @Override
     public void processValidationResult(UUID orderId, boolean valid) {
-        try {
+       try {
             Thread.sleep(2000);
         }
         catch (Exception e)
         {
 
         }
+
         BeerOrder beerOrder = beerOrderRepository.findById(orderId).get();
         System.out.println("*****Check*****BeerOrder:"+ beerOrder.getId().toString());
         if (valid) {
@@ -127,6 +128,19 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
             log.error("Order Not Found. Id: " + beerOrderDto.getId());
         }
 
+    }
+
+    @Override
+    public void beerOrderPickedUp(UUID id) {
+        Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(id);
+        try {
+            beerOrderOptional.ifPresent(beerOrder -> {
+                // Generate Process for Picked up
+                sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.BEERORDER_PICKED_UP);
+            });
+        } catch (Exception e) {
+            log.error("Order Not Found. Id: " + beerOrderOptional.toString());
+        }
     }
 
     private void sendBeerOrderEvent(BeerOrder beerOrder, BeerOrderEventEnum eventEnum) {
