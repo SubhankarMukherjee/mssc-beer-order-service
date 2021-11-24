@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 public interface BeerOrderMapper {
 
     @Mapping(target = "customerId" ,source = "customer.id")
-       BeerOrderDto beerOrderToDto(BeerOrder beerOrder);
+      public BeerOrderDto beerOrderToDto(BeerOrder beerOrder);
 
-    BeerOrder dtoToBeerOrder(BeerOrderDto dto);
+    public BeerOrder dtoToBeerOrder(BeerOrderDto dto);
 }

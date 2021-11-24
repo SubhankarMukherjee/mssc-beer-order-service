@@ -19,6 +19,7 @@ package com.comon.brewery.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import lombok.*;
 
 import java.time.OffsetDateTime;
