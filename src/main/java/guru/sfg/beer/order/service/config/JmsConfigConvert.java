@@ -18,6 +18,8 @@ public class JmsConfigConvert {
     public static final String VALIDATE_ORDER_RESPONSE_QUEUE="validate-result";
     public static final String ALLOCATE_ORDER_QUEUE="allocate-order";
     public static final String ALLOCATE_ORDER_RESPONSE_QUEUE="allocate-result";
+    public static final String ALLOCATE_ORDER_FAILURE_QUEUE="allocate-failure";
+    public static final String DEALLOCATE_ORDER_QUEUE = "deallocate-order";
 
     //public static final String MY_SEND_RCV_QUEUE="send-receive";
     @Bean

@@ -23,6 +23,9 @@ public class BeerOrderStateMachineConfig extends StateMachineConfigurerAdapter<B
 
     private final Action<BeerOrderStatusEnum, BeerOrderEventEnum> validateOrderAction;
     private final Action<BeerOrderStatusEnum, BeerOrderEventEnum> allocateOrderAction;
+    private final Action<BeerOrderStatusEnum, BeerOrderEventEnum> validationFailureAction;
+    private final Action<BeerOrderStatusEnum, BeerOrderEventEnum> allocationFailureAction;
+    private final Action<BeerOrderStatusEnum, BeerOrderEventEnum> deallocateOrderAction;
 
     @Override
     public void configure(StateMachineStateConfigurer<BeerOrderStatusEnum, BeerOrderEventEnum> states) throws Exception {
@@ -53,7 +56,7 @@ public class BeerOrderStateMachineConfig extends StateMachineConfigurerAdapter<B
            .and().withExternal()
                 .source(BeerOrderStatusEnum.VALIDATION_PENDING).target(BeerOrderStatusEnum.VALIDATION_EXCEPTION)
                 .event(BeerOrderEventEnum.VALIDATION_FAILED)
-              //  .action(validationFailureAction);
+                .action(validationFailureAction)
 
             .and().withExternal()
                 .source(BeerOrderStatusEnum.VALIDATED).target(BeerOrderStatusEnum.ALLOCATION_PENDING)
@@ -68,23 +71,27 @@ public class BeerOrderStateMachineConfig extends StateMachineConfigurerAdapter<B
                 .event(BeerOrderEventEnum.ALLOCATION_SUCCESS)
             .and().withExternal()
                 .source(BeerOrderStatusEnum.ALLOCATION_PENDING).target(BeerOrderStatusEnum.ALLOCATION_EXCEPTION)
-                .event(BeerOrderEventEnum.ALLOCATION_FAILED)/*
+                .event(BeerOrderEventEnum.ALLOCATION_FAILED)
                 .action(allocationFailureAction)
             .and().withExternal()
                 .source(BeerOrderStatusEnum.ALLOCATION_PENDING).target(BeerOrderStatusEnum.CANCELLED)
-                .event(BeerOrderEventEnum.CANCEL_ORDER)*/
+                .event(BeerOrderEventEnum.CANCEL_ORDER)
                 .and().withExternal()
                 .source(BeerOrderStatusEnum.ALLOCATION_PENDING).target(BeerOrderStatusEnum.PENDING_INVENTORY)
                 .event(BeerOrderEventEnum.ALLOCATION_NO_INVENTORY)
            .and().withExternal()
                 .source(BeerOrderStatusEnum.ALLOCATED).target(BeerOrderStatusEnum.PICKED_UP)
-                .event(BeerOrderEventEnum.BEERORDER_PICKED_UP);/*
+                .event(BeerOrderEventEnum.BEERORDER_PICKED_UP)
            .and().withExternal()
                 .source(BeerOrderStatusEnum.ALLOCATED).target(BeerOrderStatusEnum.CANCELLED)
                 .event(BeerOrderEventEnum.CANCEL_ORDER)
                 .action(deallocateOrderAction);
 
-         */
+        // Cancel can happpen from Validation pending, validated and allocation pending
+        //allocated to cancel needs to have compensating tx to roll back the changes
+
+
+
     }
 
 
