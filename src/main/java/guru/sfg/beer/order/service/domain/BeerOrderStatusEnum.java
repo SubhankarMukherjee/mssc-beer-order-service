@@ -17,6 +17,10 @@
 
 package guru.sfg.beer.order.service.domain;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
+
 public enum BeerOrderStatusEnum {
     NEW, VALIDATED, VALIDATION_PENDING, VALIDATION_EXCEPTION,
     ALLOCATION_PENDING, ALLOCATED, ALLOCATION_EXCEPTION, CANCELLED,

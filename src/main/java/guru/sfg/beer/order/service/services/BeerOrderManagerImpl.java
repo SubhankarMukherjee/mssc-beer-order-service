@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Slf4j
@@ -48,21 +50,27 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
     @Transactional
     @Override
     public void processValidationResult(UUID orderId, boolean valid) {
-       try {
-            Thread.sleep(2000);
-        }
-        catch (Exception e)
+
+        while(beerOrderRepository.findById(orderId)==null)
         {
+            try {
+                Thread.sleep(200);
+            }
+            catch (Exception e)
+            {
 
+            }
         }
 
-        BeerOrder beerOrder = beerOrderRepository.findById(orderId).get();
-        System.out.println("*****Check*****BeerOrder:"+ beerOrder.getId().toString());
-        if (valid) {
+
+                    BeerOrder beerOrder =beerOrderRepository.findById(orderId).get();
+
+      beerOrderRepository.findById(orderId).get();
+                if (valid) {
             sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATION_PASSED);
 
             // Need to take a fresh object becuae once above event was sent interceptor will update the status and we will be runing with stale object
-
+            awaitForStatus(beerOrder.getId(), BeerOrderStatusEnum.VALIDATED);
             BeerOrder validatedOrder = beerOrderRepository.findById(orderId).get();
 
             System.out.println("************ Check 2"+ validatedOrder.getId().toString());
@@ -76,6 +84,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
 
         try {
             sendBeerOrderEvent(beerOrderOptional.get(), BeerOrderEventEnum.ALLOCATION_SUCCESS);
+            awaitForStatus(beerOrderOptional.get().getId(), BeerOrderStatusEnum.ALLOCATED);
             updateAllocatedQty(beerOrderDto);
         } catch (Exception e) {
             log.error("Order Id Not Found: " + beerOrderDto.getId());
@@ -89,6 +98,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         try {
             beerOrderOptional.ifPresent(beerOrder -> {
                 sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_NO_INVENTORY);
+                awaitForStatus(beerOrder.getId(), BeerOrderStatusEnum.PENDING_INVENTORY);
                 updateAllocatedQty(beerOrderDto);
             });
         } catch (Exception e) {
@@ -178,4 +188,51 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
     protected Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
+
+    private void awaitForStatus(UUID beerOrderId, BeerOrderStatusEnum statusEnum) {
+
+        AtomicBoolean found = new AtomicBoolean(false);
+        AtomicInteger loopCount = new AtomicInteger(0);
+
+        while (!found.get()) {
+            if (loopCount.incrementAndGet() > 10) {
+                found.set(true);
+                log.debug("Loop Retries exceeded");
+            }
+
+          /*  beerOrderRepository.findById(beerOrderId).ifPresentOrElse(beerOrder -> {
+                if (beerOrder.getOrderStatus().equals(statusEnum)) {
+                    found.set(true);
+                    log.debug("Order Found");
+                } else {
+                    log.debug("Order Status Not Equal. Expected: " + statusEnum.name() + " Found: " + beerOrder.getOrderStatus().name());
+                }
+            }, () -> {
+                log.debug("Order Id Not Found");
+            });*/
+
+            beerOrderRepository.findById(beerOrderId).ifPresent(beerOrder -> {
+                if (beerOrder.getOrderStatus().equals(statusEnum)) {
+                    found.set(true);
+                    log.debug("Order Found");
+                } else {
+                    log.debug("Order Status Not Equal. Expected: " + statusEnum.name() + " Found: " + beerOrder.getOrderStatus().name());
+                }
+            });
+            if(beerOrderRepository.findById(beerOrderId)==null)
+                log.debug("Order Id Not Found");
+
+
+
+            if (!found.get()) {
+                try {
+                    log.debug("Sleeping for retry");
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                    // do nothing
+                }
+            }
+        }
+    }
+
 }

@@ -23,6 +23,7 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import java.sql.Timestamp;
 import java.util.Set;
@@ -51,7 +52,7 @@ public class Customer extends BaseEntity {
     @Column(length = 36, columnDefinition = "varchar")
     private UUID apiKey;
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer" )//,fetch = FetchType.LAZY)
     private Set<BeerOrder> beerOrders;
 
 }
